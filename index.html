@@ -31,13 +31,21 @@
     <script>
         // 🔑 ここにお前のURLを貼る！
         const LIFF_ID = "2009505407-MJkR60Cy";
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbyGRADxvVXgjakfghCtkg7PdQk5Bl2DprZqMe0QUl4UVHv4rsJFPyNeW_A15_b0hBtzgA/exec";
+        const GAS_URL = "ここにGASの新しいウェブアプリURLをコピペ";
+
+        let currentUserId = ""; // 🌟 自分のIDを覚えておくための変数
 
         async function main() {
             try {
                 await liff.init({ liffId: LIFF_ID });
-                if (liff.isLoggedIn()) fetchData();
-                else liff.login(); 
+                if (liff.isLoggedIn()) {
+                    // 🌟 LINEのプロフィールから自分のIDを取得！
+                    const profile = await liff.getProfile();
+                    currentUserId = profile.userId; 
+                    fetchData();
+                } else {
+                    liff.login(); 
+                }
             } catch (error) {
                 document.getElementById('data-container').innerHTML = `<div class="loading">❌ エラーが発生したばい。</div>`;
             }
@@ -46,7 +54,8 @@
         // 📡 データの表示
         async function fetchData() {
             try {
-                const response = await fetch(GAS_URL);
+                // 🌟 GASに「俺のIDのデータをくれ！」とリクエストする
+                const response = await fetch(`${GAS_URL}?userId=${currentUserId}`);
                 const data = await response.json();
                 
                 let html = "";
@@ -54,9 +63,7 @@
                     html = `<div class="loading">📝 まだレシートの登録がないばい！</div>`;
                 } else {
                     data.forEach(item => {
-                        // 🌟 日付を綺麗に！
                         const formattedDate = new Date(item.date).toLocaleDateString('ja-JP');
-                        // 🌟 金額にカンマを付ける！
                         const formattedAmount = Number(item.amount).toLocaleString('ja-JP');
 
                         html += `
@@ -81,13 +88,12 @@
 
         // 🗑️ 削除の魔法
         async function deleteRecord(row) {
-            // 間違えて押さないように確認を出す
             if (!confirm("本当にこの記録を削除するばい？")) return;
-            
             document.getElementById('data-container').innerHTML = `<div class="loading">🗑️ 削除中ばい...</div>`;
             try {
-                await fetch(GAS_URL + "?action=delete&row=" + row);
-                fetchData(); // 削除後に画面をリロード
+                // 🌟 削除の時も自分のIDを伝える
+                await fetch(`${GAS_URL}?action=delete&row=${row}&userId=${currentUserId}`);
+                fetchData(); 
             } catch (error) {
                 alert("削除に失敗したばい！");
                 fetchData();
@@ -99,9 +105,9 @@
             const btn = document.getElementById('export-btn');
             btn.innerText = "⏳ エクセルを作成中ばい...";
             try {
-                const response = await fetch(GAS_URL + "?action=export");
+                // 🌟 出力の時も自分のIDを伝える
+                const response = await fetch(`${GAS_URL}?action=export&userId=${currentUserId}`);
                 const result = await response.json();
-                // ワンクリックでダウンロード開始！
                 window.location.href = result.url; 
                 btn.innerText = "📊 エクセルで出力する";
             } catch (error) {
