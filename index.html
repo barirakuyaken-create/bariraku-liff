@@ -59,9 +59,13 @@
                 } else {
                     // もらったデータを1件ずつカードにしていく
                     data.forEach(item => {
+                        // --- ここから挿入 ---
+                        // システム的な日付 (item.date) を、日本時間の読みやすい形式に直す魔法
+                        const formattedDate = new Date(item.date).toLocaleDateString('ja-JP');
+                        // --- ここまで ---
                         html += `
                         <div class="receipt-card">
-                            <p>📅 <strong>日付:</strong> ${item.date}</p>
+                            <p>📅 <strong>日付:</strong> ${formattedDate}</p> <p>🏪 <strong>店名:</strong> ${item.store}</p>
                             <p>🏪 <strong>店名:</strong> ${item.store}</p>
                             <p class="amount">💰 <strong>金額:</strong> ${item.amount} 円</p>
                             <p>🏷️ <strong>科目:</strong> ${item.category}</p>
