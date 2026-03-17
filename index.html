@@ -12,8 +12,10 @@
         .receipt-card { background: white; border-radius: 8px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .receipt-card p { margin: 5px 0; font-size: 14px; color: #333; }
         .receipt-card .amount { font-size: 18px; font-weight: bold; color: #e53e3e; }
-        .receipt-card a { display: inline-block; margin-top: 10px; font-size: 12px; color: #06c755; text-decoration: none; border: 1px solid #06c755; padding: 5px 10px; border-radius: 4px; }
+        .receipt-card a { display: inline-block; font-size: 12px; color: #06c755; text-decoration: none; border: 1px solid #06c755; padding: 5px 10px; border-radius: 4px; }
         .bottom-btn { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #06c755; color: white; text-align: center; padding: 18px; font-size: 1.2em; border: none; font-weight: bold; cursor: pointer; z-index: 1000;}
+        .delete-btn { background-color: #e53e3e; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
         .loading { text-align: center; color: #666; margin-top: 30px; font-weight: bold; }
     </style>
 </head>
@@ -21,33 +23,27 @@
     <header>📓 ばりラクやけん 台帳</header>
     
     <div class="container" id="data-container">
-        <div class="loading">🔄 スプレッドシートからデータを取得中ばい...</div>
+        <div class="loading">🔄 データを取得中ばい...</div>
     </div>
 
-    <button class="bottom-btn" onclick="alert('エクセル出力は次繋ぐぜ！')">📊 エクセルで出力する</button>
+    <button class="bottom-btn" id="export-btn" onclick="exportExcel()">📊 エクセルで出力する</button>
 
     <script>
-        // 🔑 ① さっき使ったLIFF IDをもう一度貼る！
+        // 🔑 ここにお前のURLを貼る！
         const LIFF_ID = "2009505407-MJkR60Cy";
-
-        // 🔑 ② GASの「ウェブアプリURL」をここに貼る！
         const GAS_URL = "https://script.google.com/macros/s/AKfycbyGRADxvVXgjakfghCtkg7PdQk5Bl2DprZqMe0QUl4UVHv4rsJFPyNeW_A15_b0hBtzgA/exec";
 
         async function main() {
             try {
                 await liff.init({ liffId: LIFF_ID });
-                if (liff.isLoggedIn()) {
-                    fetchData(); // データの取得を開始！
-                } else {
-                    liff.login(); 
-                }
+                if (liff.isLoggedIn()) fetchData();
+                else liff.login(); 
             } catch (error) {
-                console.error("LIFF初期化エラー", error);
-                document.getElementById('data-container').innerHTML = `<div class="loading">❌ エラーが発生しましたばい。</div>`;
+                document.getElementById('data-container').innerHTML = `<div class="loading">❌ エラーが発生したばい。</div>`;
             }
         }
 
-        // 📡 GASに通信してデータをもらってくる関数
+        // 📡 データの表示
         async function fetchData() {
             try {
                 const response = await fetch(GAS_URL);
@@ -55,30 +51,62 @@
                 
                 let html = "";
                 if(data.length === 0) {
-                    html = `<div class="loading">📝 まだレシートの登録がないばい！<br>LINEで写真を送ってみてね。</div>`;
+                    html = `<div class="loading">📝 まだレシートの登録がないばい！</div>`;
                 } else {
-                    // もらったデータを1件ずつカードにしていく
                     data.forEach(item => {
-                        // --- ここから挿入 ---
-                        // システム的な日付 (item.date) を、日本時間の読みやすい形式に直す魔法
+                        // 🌟 日付を綺麗に！
                         const formattedDate = new Date(item.date).toLocaleDateString('ja-JP');
-                        // --- ここまで ---
+                        // 🌟 金額にカンマを付ける！
+                        const formattedAmount = Number(item.amount).toLocaleString('ja-JP');
+
                         html += `
                         <div class="receipt-card">
                             <p>📅 <strong>日付:</strong> ${formattedDate}</p>
                             <p>🏪 <strong>店名:</strong> ${item.store}</p>
-                            <p class="amount">💰 <strong>金額:</strong> ${item.amount} 円</p>
+                            <p class="amount">💰 <strong>金額:</strong> ${formattedAmount} 円</p>
                             <p>🏷️ <strong>科目:</strong> ${item.category}</p>
-                            <a href="${item.imageUrl}" target="_blank">📄 レシート画像を見る</a>
+                            <div class="card-footer">
+                                <a href="${item.imageUrl}" target="_blank">📄 レシート画像</a>
+                                <button class="delete-btn" onclick="deleteRecord(${item.row})">🗑️ 削除</button>
+                            </div>
                         </div>
                         `;
                     });
                 }
                 document.getElementById('data-container').innerHTML = html;
-
             } catch(error) {
-                console.error("データ取得エラー", error);
-                document.getElementById('data-container').innerHTML = `<div class="loading">❌ データの取得に失敗したばい。<br>URLが合っているか確認してくれ！</div>`;
+                document.getElementById('data-container').innerHTML = `<div class="loading">❌ データの取得に失敗したばい。</div>`;
+            }
+        }
+
+        // 🗑️ 削除の魔法
+        async function deleteRecord(row) {
+            // 間違えて押さないように確認を出す
+            if (!confirm("本当にこの記録を削除するばい？")) return;
+            
+            document.getElementById('data-container').innerHTML = `<div class="loading">🗑️ 削除中ばい...</div>`;
+            try {
+                await fetch(GAS_URL + "?action=delete&row=" + row);
+                fetchData(); // 削除後に画面をリロード
+            } catch (error) {
+                alert("削除に失敗したばい！");
+                fetchData();
+            }
+        }
+
+        // 📊 エクセル出力の魔法
+        async function exportExcel() {
+            const btn = document.getElementById('export-btn');
+            btn.innerText = "⏳ エクセルを作成中ばい...";
+            try {
+                const response = await fetch(GAS_URL + "?action=export");
+                const result = await response.json();
+                // ワンクリックでダウンロード開始！
+                window.location.href = result.url; 
+                btn.innerText = "📊 エクセルで出力する";
+            } catch (error) {
+                alert("出力に失敗したばい！");
+                btn.innerText = "📊 エクセルで出力する";
             }
         }
 
