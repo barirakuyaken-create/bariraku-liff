@@ -136,6 +136,48 @@
             }
         }
 
+        // 🌟🌟 【ここを追加！】編集モードを開始する 🌟🌟
+        function startEdit(row) {
+            // その行のカードを編集モードにする
+            document.getElementById(`card-${row}`).classList.add('editing');
+        }
+
+        // 🌟🌟 【ここを追加！】編集をキャンセルする 🌟🌟
+        function cancelEdit(row) {
+            // その行のカードを元に戻す
+            document.getElementById(`card-${row}`).classList.remove('editing');
+        }
+
+        // 🌟🌟 【ここを追加！】編集を保存する（GASに送る） 🌟🌟
+        async function saveEdit(row) {
+            // 入力された新しい値を取得
+            const newDate = document.getElementById(`edit-date-${row}`).value;
+            const newStore = document.getElementById(`edit-store-${row}`).value;
+            const newAmount = document.getElementById(`edit-amount-${row}`).value;
+            const newCategory = document.getElementById(`edit-category-${row}`).value;
+
+            // ローディング表示（保存ボタンをグレーアウト）
+            const card = document.getElementById(`card-${row}`);
+            card.querySelector('.save-btn').innerText = "⏳ 保存中...";
+
+            try {
+                // GASに「編集して！」とリクエストを送る
+                const response = await fetch(`${GAS_URL}?action=edit&row=${row}&userId=${currentUserId}&date=${encodeURIComponent(newDate)}&store=${encodeURIComponent(newStore)}&amount=${newAmount}&category=${encodeURIComponent(newCategory)}`);
+                const result = await response.json();
+                
+                if (result.status === "success") {
+                    cancelEdit(row); // 編集モードを終了
+                    fetchData();     // データを再読み込みして表示を更新
+                } else {
+                    alert("保存に失敗したばい！");
+                    cancelEdit(row);
+                }
+            } catch (error) {
+                alert("通信エラーが発生したばい！");
+                cancelEdit(row);
+            }
+        }
+        
        // 📊 エクセル出力の魔法（修正版）
         async function exportExcel() {
             const btn = document.getElementById('export-btn');
