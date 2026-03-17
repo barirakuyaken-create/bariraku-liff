@@ -73,15 +73,44 @@
                         const formattedDate = new Date(item.date).toLocaleDateString('ja-JP');
                         const formattedAmount = Number(item.amount).toLocaleString('ja-JP');
 
+                        // 📡 fetchData 関数の中、 records.forEach(item => { ... }) の内側
+                        // (日付や金額のフォーマット処理はそのまま)
+
                         html += `
-                        <div class="receipt-card">
-                            <p>📅 <strong>日付:</strong> ${formattedDate}</p>
-                            <p>🏪 <strong>店名:</strong> ${item.store}</p>
-                            <p class="amount">💰 <strong>金額:</strong> ${formattedAmount} 円</p>
-                            <p>🏷️ <strong>科目:</strong> ${item.category}</p>
-                            <div class="card-footer">
-                                <a href="${item.imageUrl}" target="_blank">📄 レシート画像</a>
-                                <button class="delete-btn" onclick="deleteRecord(${item.row})">🗑️ 削除</button>
+                        <div class="receipt-card" id="card-${item.row}">
+                            <div class="static-mode">
+                                <p>📅 <strong>日付:</strong> ${formattedDate}</p>
+                                <p>🏪 <strong>店名:</strong> ${item.store}</p>
+                                <p class="amount">💰 <strong>金額:</strong> ${formattedAmount} 円</p>
+                                <p>🏷️ <strong>科目:</strong> ${item.category}</p>
+                                <div class="card-footer">
+                                    <a href="${item.imageUrl}" target="_blank">📄 レシート画像</a>
+                                    <div>
+                                        <button class="edit-btn" onclick="startEdit(${item.row})">✏️ 編集</button>
+                                        <button class="delete-btn" onclick="deleteRecord(${item.row})">🗑️ 削除</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="edit-mode">
+                                <p>📅 <strong>日付:</strong> <input type="date" id="edit-date-${item.row}" value="${formattedDate.replace(/\//g, '-')}"></p>
+                                <p>🏪 <strong>店名:</strong> <input type="text" id="edit-store-${item.row}" value="${item.store}"></p>
+                                <p class="amount">💰 <strong>金額:</strong> <input type="number" id="edit-amount-${item.row}" value="${item.amount}"> 円</p>
+                                <p>🏷️ <strong>科目:</strong> 
+                                    <select id="edit-category-${item.row}">
+                                        <option value="${item.category}" selected>${item.category} (現在の科目)</option>
+                                        <option value="仕入">仕入</option>
+                                        <option value="消耗品費">消耗品費</option>
+                                        <option value="肥料費">肥料費</option>
+                                        <option value="農薬衛生費">農薬衛生費</option>
+                                        <option value="未分類">未分類</option>
+                                        </select>
+                                </p>
+                                <div class="card-footer">
+                                    <span></span> <div>
+                                        <button class="save-btn" onclick="saveEdit(${item.row})">✅ 保存</button>
+                                        <button class="cancel-btn" onclick="cancelEdit(${item.row})">❌ キャンセル</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         `;
