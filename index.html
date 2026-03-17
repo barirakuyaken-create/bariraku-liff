@@ -100,15 +100,22 @@
             }
         }
 
-        // 📊 エクセル出力の魔法
+       // 📊 エクセル出力の魔法（修正版）
         async function exportExcel() {
             const btn = document.getElementById('export-btn');
             btn.innerText = "⏳ エクセルを作成中ばい...";
             try {
-                // 🌟 出力の時も自分のIDを伝える
+                // 自分のIDを伝えてエクセルを作成
                 const response = await fetch(`${GAS_URL}?action=export&userId=${currentUserId}`);
                 const result = await response.json();
-                window.location.href = result.url; 
+                
+                // 🌟 【ここを変更！】
+                // window.location.href = result.url; // ←これを消して、下にする！
+                liff.openWindow({
+                    url: result.url,
+                    external: true // スマホの標準ブラウザ（Safari等）で強制的に開く！
+                });
+                
                 btn.innerText = "📊 エクセルで出力する";
             } catch (error) {
                 alert("出力に失敗したばい！");
