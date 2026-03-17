@@ -17,6 +17,13 @@
         .delete-btn { background-color: #e53e3e; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
         .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
         .loading { text-align: center; color: #666; margin-top: 30px; font-weight: bold; }
+        .receipt-card input, .receipt-card select { width: 100%; box-sizing: border-box; padding: 5px; margin: 3px 0; border: 1px solid #ddd; border-radius: 4px; }
+        .receipt-card .edit-mode { display: none; }
+        .receipt-card.editing .static-mode { display: none; }
+        .receipt-card.editing .edit-mode { display: block; }
+        .edit-btn { background-color: #f6ad55; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .save-btn { background-color: #48bb78; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .cancel-btn { background-color: #a0aec0; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; margin-left: 5px; }
     </style>
 </head>
 <body>
