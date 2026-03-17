@@ -5,14 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ばりラクやけん 台帳</title>
     <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-    <style>
-        body { font-family: sans-serif; background-color: #f4f5f7; margin: 0; padding: 0; }
-        header { background-color: #06c755; color: white; text-align: center; padding: 15px; font-size: 1.2em; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .container { padding: 15px; padding-bottom: 80px; }
-        .receipt-card { background: white; border-radius: 8px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .bottom-btn { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #06c755; color: white; text-align: center; padding: 18px; font-size: 1.2em; border: none; font-weight: bold; cursor: pointer; z-index: 1000;}
-        .loading { text-align: center; color: #666; margin-top: 30px; font-weight: bold; }
-    </style>
+    <script>
+        // 🔑 ここにさっきゲットしたLIFF IDを貼り付ける！
+        const LIFF_ID = "2009505407-MJkR60Cy";
+
+        async function main() {
+            try {
+                // ① LIFFアプリの初期化（起動準備）
+                await liff.init({ liffId: LIFF_ID });
+                
+                // ② ログインチェック
+                if (liff.isLoggedIn()) {
+                    // ③ ユーザー情報の取得
+                    const profile = await liff.getProfile();
+                    const userId = profile.userId;
+                    
+                    // ④ 画面の表示を書き換える（テスト成功の証！）
+                    document.getElementById('data-container').innerHTML = `
+                        <div class="loading">
+                            ✅ LINE連携 大成功ばい！<br><br>
+                            ようこそ、${profile.displayName}さん！<br>
+                            (ID: ${userId})<br><br>
+                            ※次はここにスプレッドシートのデータを表示させるぜ！
+                        </div>
+                    `;
+                } else {
+                    // LINE外のブラウザで開いた場合はログイン画面へ
+                    liff.login(); 
+                }
+            } catch (error) {
+                console.error("LIFF初期化エラー", error);
+                document.getElementById('data-container').innerHTML = `<div class="loading">❌ エラーが発生しましたばい。</div>`;
+            }
+        }
+
+        // 魔法の実行！
+        main();
+    </script>
 </head>
 <body>
     <header>📓 ばりラクやけん 台帳</header>
