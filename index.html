@@ -95,15 +95,37 @@
                                 <p>📅 <strong>日付:</strong> <input type="date" id="edit-date-${item.row}" value="${formattedDate.replace(/\//g, '-')}"></p>
                                 <p>🏪 <strong>店名:</strong> <input type="text" id="edit-store-${item.row}" value="${item.store}"></p>
                                 <p class="amount">💰 <strong>金額:</strong> <input type="number" id="edit-amount-${item.row}" value="${item.amount}"> 円</p>
-                                <p>🏷️ <strong>科目:</strong> 
+                                <p>🏷️ <strong>科目:</strong> 
                                     <select id="edit-category-${item.row}">
-                                        <option value="${item.category}" selected>${item.category} (現在の科目)</option>
-                                        <option value="仕入">仕入</option>
-                                        <option value="消耗品費">消耗品費</option>
-                                        <option value="肥料費">肥料費</option>
-                                        <option value="農薬衛生費">農薬衛生費</option>
-                                        <option value="未分類">未分類</option>
-                                        </select>
+                                        <option value="${item.category}" selected>現在の科目：${item.category}</option>
+                                        
+                                        <optgroup label="一般事業・共通">
+                                            <option value="仕入">仕入</option>
+                                            <option value="消耗品費">消耗品費</option>
+                                            <option value="交通費">交通費</option>
+                                            <option value="通信費">通信費</option>
+                                            <option value="広告宣伝費">広告宣伝費</option>
+                                            <option value="地代家賃">地代家賃</option>
+                                            <option value="給料賃金">給料賃金</option>
+                                            <option value="荷造運賃">荷造運賃</option>
+                                        </optgroup>
+                                        
+                                        <optgroup label="農業特有">
+                                            <option value="種苗費">種苗費</option>
+                                            <option value="肥料費">肥料費</option>
+                                            <option value="農薬衛生費">農薬衛生費</option>
+                                            <option value="諸材料費">諸材料費</option>
+                                            <option value="修繕費">修繕費</option>
+                                            <option value="農具費">農具費</option>
+                                            <option value="動力光熱費">動力光熱費</option>
+                                            <option value="作業受託費">作業受託費</option>
+                                            <option value="荷造運賃手数料">荷造運賃手数料</option>
+                                        </optgroup>
+
+                                        <optgroup label="その他">
+                                            <option value="未分類">未分類</option>
+                                        </optgroup>
+                                    </select>
                                 </p>
                                 <div class="card-footer">
                                     <span></span> <div>
