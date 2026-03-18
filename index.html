@@ -85,24 +85,18 @@
             }
         }
 
-        // 📡 データの表示
+        // 📡 スプレッドシートからデータを取得する魔法
         async function fetchData() {
             try {
-                // 🌟 GASに「俺のIDのデータをくれ！」とリクエストする
+                // 自分のIDを伝えてデータをもらう
                 const response = await fetch(`${GAS_URL}?userId=${currentUserId}`);
-                const data = await response.json();
+                const records = await response.json();
                 
                 let html = "";
-                if(data.length === 0) {
-                    html = `<div class="loading">📝 まだレシートの登録がないばい！</div>`;
+                if (records.length === 0) {
+                    html = "<p style='text-align:center;'>まだデータがないばい！</p>";
                 } else {
-                    data.forEach(item => {
-                        const formattedDate = new Date(item.date).toLocaleDateString('ja-JP');
-                        const formattedAmount = Number(item.amount).toLocaleString('ja-JP');
-
-                        // 📡 fetchData 関数の中の、 records.forEach(item => { の直下あたり
-
-                            // 🌟🌟 ここから上書き 🌟🌟
+                    records.forEach(item => {
                         // ① 日付と金額のフォーマット
                         let dateObj = new Date(item.date);
                         let formattedDate = `${dateObj.getFullYear()}/${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
@@ -115,7 +109,7 @@
 
                         let formattedAmount = Number(item.amount).toLocaleString();
 
-                        // ③ カードのHTMLを生成（閉じタグ完璧版）
+                        // ③ カードのHTMLを生成
                         html += `
                         <div class="receipt-card" id="card-${item.row}">
                             <div class="static-mode">
@@ -177,12 +171,14 @@
                         `;
                     });
                 }
-                document.getElementById('data-container').innerHTML = html;
-            } catch(error) {
-                document.getElementById('data-container').innerHTML = `<div class="loading">❌ データの取得に失敗したばい。</div>`;
+                // HTMLを画面にセットする
+                document.getElementById('receipt-list').innerHTML = html;
+            } catch (error) {
+                console.error("エラーが発生したばい:", error);
+                document.getElementById('receipt-list').innerHTML = "<p style='text-align:center;color:red;'>データの読み込みに失敗したばい！</p>";
             }
         }
-
+        
         // 🗑️ 削除の魔法
         async function deleteRecord(row) {
             if (!confirm("本当にこの記録を削除するばい？")) return;
