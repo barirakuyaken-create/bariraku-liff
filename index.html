@@ -57,23 +57,23 @@
     <header>📓 ばりラクやけん 台帳</header>
     
     <div class="container" id="data-container">
-        <div class="loading">🔄 データを取得中ばい...</div>
+        <div id="receipt-list">
+            <div class="loading">🔄 データを取得中ばい...</div>
+        </div>
     </div>
 
     <button class="bottom-btn" id="export-btn" onclick="exportExcel()">📊 エクセルで出力する</button>
 
     <script>
-        // 🔑 ここにお前のURLを貼る！
         const LIFF_ID = "2009505407-MJkR60Cy";
         const GAS_URL = "https://script.google.com/macros/s/AKfycbyGRADxvVXgjakfghCtkg7PdQk5Bl2DprZqMe0QUl4UVHv4rsJFPyNeW_A15_b0hBtzgA/exec";
 
-        let currentUserId = ""; // 🌟 自分のIDを覚えておくための変数
+        let currentUserId = "";
 
         async function main() {
             try {
                 await liff.init({ liffId: LIFF_ID });
                 if (liff.isLoggedIn()) {
-                    // 🌟 LINEのプロフィールから自分のIDを取得！
                     const profile = await liff.getProfile();
                     currentUserId = profile.userId; 
                     fetchData();
@@ -81,14 +81,12 @@
                     liff.login(); 
                 }
             } catch (error) {
-                document.getElementById('data-container').innerHTML = `<div class="loading">❌ エラーが発生したばい。</div>`;
+                document.getElementById('receipt-list').innerHTML = `<div class="loading" style="color:red;">❌ エラーが発生したばい。</div>`;
             }
         }
 
-        // 📡 スプレッドシートからデータを取得する魔法
         async function fetchData() {
             try {
-                // 自分のIDを伝えてデータをもらう
                 const response = await fetch(`${GAS_URL}?userId=${currentUserId}`);
                 const records = await response.json();
                 
@@ -97,11 +95,10 @@
                     html = "<p style='text-align:center;'>まだデータがないばい！</p>";
                 } else {
                     records.forEach(item => {
-                        // ① 日付と金額のフォーマット
                         let dateObj = new Date(item.date);
                         let formattedDate = `${dateObj.getFullYear()}/${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
                         
-                        // ② 編集モード用に「YYYY-MM-DD」の2桁形式を作る
+                        // 編集用の日付（YYYY-MM-DD）
                         let yyyy = dateObj.getFullYear();
                         let mm = String(dateObj.getMonth() + 1).padStart(2, '0');
                         let dd = String(dateObj.getDate()).padStart(2, '0');
@@ -109,7 +106,6 @@
 
                         let formattedAmount = Number(item.amount).toLocaleString();
 
-                        // ③ カードのHTMLを生成
                         html += `
                         <div class="receipt-card" id="card-${item.row}">
                             <div class="static-mode">
@@ -171,20 +167,17 @@
                         `;
                     });
                 }
-                // HTMLを画面にセットする
                 document.getElementById('receipt-list').innerHTML = html;
             } catch (error) {
-                console.error("エラーが発生したばい:", error);
+                console.error("エラー:", error);
                 document.getElementById('receipt-list').innerHTML = "<p style='text-align:center;color:red;'>データの読み込みに失敗したばい！</p>";
             }
         }
         
-        // 🗑️ 削除の魔法
         async function deleteRecord(row) {
             if (!confirm("本当にこの記録を削除するばい？")) return;
-            document.getElementById('data-container').innerHTML = `<div class="loading">🗑️ 削除中ばい...</div>`;
+            document.getElementById('receipt-list').innerHTML = `<div class="loading">🗑️ 削除中ばい...</div>`;
             try {
-                // 🌟 削除の時も自分のIDを伝える
                 await fetch(`${GAS_URL}?action=delete&row=${row}&userId=${currentUserId}`);
                 fetchData(); 
             } catch (error) {
@@ -193,38 +186,30 @@
             }
         }
 
-        // 🌟🌟 【ここを追加！】編集モードを開始する 🌟🌟
         function startEdit(row) {
-            // その行のカードを編集モードにする
             document.getElementById(`card-${row}`).classList.add('editing');
         }
 
-        // 🌟🌟 【ここを追加！】編集をキャンセルする 🌟🌟
         function cancelEdit(row) {
-            // その行のカードを元に戻す
             document.getElementById(`card-${row}`).classList.remove('editing');
         }
 
-        // 🌟🌟 【ここを追加！】編集を保存する（GASに送る） 🌟🌟
         async function saveEdit(row) {
-            // 入力された新しい値を取得
             const newDate = document.getElementById(`edit-date-${row}`).value;
             const newStore = document.getElementById(`edit-store-${row}`).value;
             const newAmount = document.getElementById(`edit-amount-${row}`).value;
             const newCategory = document.getElementById(`edit-category-${row}`).value;
 
-            // ローディング表示（保存ボタンをグレーアウト）
             const card = document.getElementById(`card-${row}`);
             card.querySelector('.save-btn').innerText = "⏳ 保存中...";
 
             try {
-                // GASに「編集して！」とリクエストを送る
                 const response = await fetch(`${GAS_URL}?action=edit&row=${row}&userId=${currentUserId}&date=${encodeURIComponent(newDate)}&store=${encodeURIComponent(newStore)}&amount=${newAmount}&category=${encodeURIComponent(newCategory)}`);
                 const result = await response.json();
                 
                 if (result.status === "success") {
-                    cancelEdit(row); // 編集モードを終了
-                    fetchData();     // データを再読み込みして表示を更新
+                    cancelEdit(row); 
+                    fetchData();     
                 } else {
                     alert("保存に失敗したばい！");
                     cancelEdit(row);
@@ -235,20 +220,16 @@
             }
         }
         
-       // 📊 エクセル出力の魔法（修正版）
         async function exportExcel() {
             const btn = document.getElementById('export-btn');
             btn.innerText = "⏳ エクセルを作成中ばい...";
             try {
-                // 自分のIDを伝えてエクセルを作成
                 const response = await fetch(`${GAS_URL}?action=export&userId=${currentUserId}`);
                 const result = await response.json();
                 
-                // 🌟 【ここを変更！】
-                // window.location.href = result.url; // ←これを消して、下にする！
                 liff.openWindow({
                     url: result.url,
-                    external: true // スマホの標準ブラウザ（Safari等）で強制的に開く！
+                    external: true
                 });
                 
                 btn.innerText = "📊 エクセルで出力する";
