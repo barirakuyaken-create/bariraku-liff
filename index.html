@@ -100,10 +100,20 @@
                         const formattedDate = new Date(item.date).toLocaleDateString('ja-JP');
                         const formattedAmount = Number(item.amount).toLocaleString('ja-JP');
 
-                        // 📡 fetchData 関数の中、 records.forEach(item => { ... }) の内側
-                        // (日付や金額のフォーマット処理はそのまま)
+                        // 📡 fetchData 関数の中の、 records.forEach(item => { の直下あたり
+
+                            // 👇🌟 ここから追加：編集用の日付（YYYY-MM-DD）を作る
+                            let dateObj = new Date(item.date);
+                            let yyyy = dateObj.getFullYear();
+                            let mm = String(dateObj.getMonth() + 1).padStart(2, '0'); // 月を強制的に2桁に
+                            let dd = String(dateObj.getDate()).padStart(2, '0');      // 日を強制的に2桁に
+                            let editDateValue = `${yyyy}-${mm}-${dd}`;
+                            // 👆🌟 追加ここまで
+
+                            // (金額のフォーマット処理とかはそのまま残す)
 
                         html += `
+                        <div class="receipt-card" id="card-${item.row}">
                         <div class="receipt-card" id="card-${item.row}">
                             <div class="static-mode">
                                 <p>📅 <strong>日付:</strong> ${formattedDate}</p>
@@ -119,7 +129,7 @@
                                 </div>
                             </div>
                             <div class="edit-mode">
-                                <p>📅 <strong>日付:</strong> <input type="date" id="edit-date-${item.row}" value="${formattedDate.replace(/\//g, '-')}"></p>
+                                <p>📅 <strong>日付:</strong> <input type="date" id="edit-date-${item.row}" value="${editDateValue}"></p>
                                 <p>🏪 <strong>店名:</strong> <input type="text" id="edit-store-${item.row}" value="${item.store}"></p>
                                 <p class="amount">💰 <strong>金額:</strong> <input type="number" id="edit-amount-${item.row}" value="${item.amount}"> 円</p>
                                 <p>🏷️ <strong>科目:</strong> 
