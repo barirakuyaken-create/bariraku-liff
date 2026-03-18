@@ -6,17 +6,44 @@
     <title>ばりラクやけん 台帳</title>
     <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
-        body { font-family: sans-serif; background-color: #f4f5f7; margin: 0; padding: 0; }
+        /* 🌟 1. 画面の外側（PCの余白部分）を少し暗いグレーにする */
+        html { background-color: #e2e8f0; }
+
+        /* 🌟 2. アプリ本体を「最大500px」に制限して、画面のど真ん中に置く */
+        body { 
+            font-family: sans-serif; 
+            background-color: #f4f5f7; 
+            margin: 0 auto; /* これが中央寄せの魔法 */
+            padding: 0; 
+            max-width: 500px; /* 横幅をスマホサイズに固定！ */
+            min-height: 100vh; /* 高さを画面いっぱいに */
+            box-shadow: 0 0 20px rgba(0,0,0,0.1); /* アプリ全体にうっすら影をつけてプロっぽく */
+        }
+
         header { background-color: #06c755; color: white; text-align: center; padding: 15px; font-size: 1.2em; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .container { padding: 15px; padding-bottom: 80px; }
         .receipt-card { background: white; border-radius: 8px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .receipt-card p { margin: 5px 0; font-size: 14px; color: #333; }
         .receipt-card .amount { font-size: 18px; font-weight: bold; color: #e53e3e; }
         .receipt-card a { display: inline-block; font-size: 12px; color: #06c755; text-decoration: none; border: 1px solid #06c755; padding: 5px 10px; border-radius: 4px; }
-        .bottom-btn { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #06c755; color: white; text-align: center; padding: 18px; font-size: 1.2em; border: none; font-weight: bold; cursor: pointer; z-index: 1000;}
+        
+        /* 🌟 3. 下の固定ボタンも、アプリの幅（最大500px）に合わせて中央に固定！ */
+        .bottom-btn { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            margin: auto; /* 左右の余白を均等にして中央寄せ */
+            width: 100%; 
+            max-width: 500px; /* ボタンがビヨーンと伸びるのを防ぐ */
+            background-color: #06c755; color: white; text-align: center; padding: 18px; font-size: 1.2em; border: none; font-weight: bold; cursor: pointer; z-index: 1000;
+        }
+        
         .delete-btn { background-color: #e53e3e; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
         .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
         .loading { text-align: center; color: #666; margin-top: 30px; font-weight: bold; }
+
+        /* 編集機能のCSS */
         .receipt-card input, .receipt-card select { width: 100%; box-sizing: border-box; padding: 5px; margin: 3px 0; border: 1px solid #ddd; border-radius: 4px; }
         .receipt-card .edit-mode { display: none; }
         .receipt-card.editing .static-mode { display: none; }
