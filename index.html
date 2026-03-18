@@ -102,18 +102,21 @@
 
                         // 📡 fetchData 関数の中の、 records.forEach(item => { の直下あたり
 
-                            // 👇🌟 ここから追加：編集用の日付（YYYY-MM-DD）を作る
-                            let dateObj = new Date(item.date);
-                            let yyyy = dateObj.getFullYear();
-                            let mm = String(dateObj.getMonth() + 1).padStart(2, '0'); // 月を強制的に2桁に
-                            let dd = String(dateObj.getDate()).padStart(2, '0');      // 日を強制的に2桁に
-                            let editDateValue = `${yyyy}-${mm}-${dd}`;
-                            // 👆🌟 追加ここまで
+                            // 🌟🌟 ここから上書き 🌟🌟
+                        // ① 日付と金額のフォーマット
+                        let dateObj = new Date(item.date);
+                        let formattedDate = `${dateObj.getFullYear()}/${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
+                        
+                        // ② 編集モード用に「YYYY-MM-DD」の2桁形式を作る
+                        let yyyy = dateObj.getFullYear();
+                        let mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+                        let dd = String(dateObj.getDate()).padStart(2, '0');
+                        let editDateValue = `${yyyy}-${mm}-${dd}`;
 
-                            // (金額のフォーマット処理とかはそのまま残す)
+                        let formattedAmount = Number(item.amount).toLocaleString();
 
+                        // ③ カードのHTMLを生成（閉じタグ完璧版）
                         html += `
-                        <div class="receipt-card" id="card-${item.row}">
                         <div class="receipt-card" id="card-${item.row}">
                             <div class="static-mode">
                                 <p>📅 <strong>日付:</strong> ${formattedDate}</p>
@@ -128,6 +131,7 @@
                                     </div>
                                 </div>
                             </div>
+                            
                             <div class="edit-mode">
                                 <p>📅 <strong>日付:</strong> <input type="date" id="edit-date-${item.row}" value="${editDateValue}"></p>
                                 <p>🏪 <strong>店名:</strong> <input type="text" id="edit-store-${item.row}" value="${item.store}"></p>
@@ -135,7 +139,6 @@
                                 <p>🏷️ <strong>科目:</strong> 
                                     <select id="edit-category-${item.row}">
                                         <option value="${item.category}" selected>現在の科目：${item.category}</option>
-                                        
                                         <optgroup label="一般事業・共通">
                                             <option value="仕入">仕入</option>
                                             <option value="消耗品費">消耗品費</option>
@@ -146,7 +149,6 @@
                                             <option value="給料賃金">給料賃金</option>
                                             <option value="荷造運賃">荷造運賃</option>
                                         </optgroup>
-                                        
                                         <optgroup label="農業特有">
                                             <option value="種苗費">種苗費</option>
                                             <option value="肥料費">肥料費</option>
@@ -158,14 +160,14 @@
                                             <option value="作業受託費">作業受託費</option>
                                             <option value="荷造運賃手数料">荷造運賃手数料</option>
                                         </optgroup>
-
                                         <optgroup label="その他">
                                             <option value="未分類">未分類</option>
                                         </optgroup>
                                     </select>
                                 </p>
                                 <div class="card-footer">
-                                    <span></span> <div>
+                                    <span></span>
+                                    <div>
                                         <button class="save-btn" onclick="saveEdit(${item.row})">✅ 保存</button>
                                         <button class="cancel-btn" onclick="cancelEdit(${item.row})">❌ キャンセル</button>
                                     </div>
